@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: latin-1; -*-
 
+# PfemInterface.py
+# Python interface between the wrapper of PFEM solver and CUPyDO.
+# Authors M.L. CERQUAGLIA
+#
+# COPYRIGHT (C) University of Liège, 2017.
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -224,4 +230,4 @@ class PfemSolver(FluidSolver):
             self.pfem.gui.save2vtk()
         self.pfem.scheme.exit()
         
-        print("***************************** Exit Pfem *****************************")
+        print("\n***************************** Exit Pfem *****************************")

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: latin-1; -*-
-# Battery FSI
-# Revisited for FSI by Marco Lucio CERQUAGLIA and David THOMAS
+# Battery CUPyDO
+# Revisited for CUPyDO by Marco Lucio CERQUAGLIA and David THOMAS
 # Originally written for "Metalub" by Romain Boman
-# Modified for "Metalub" by Yves CARRETTA 
+# Modified for "Metalub" by Yves CARRETTA
+#
+# COPYRIGHT (C) University of Liege, 2017. 
 
 import sys, glob, os, subprocess, platform, argparse
 
@@ -61,7 +63,7 @@ def runOne(donfile, nbProcs):
         try:
             if os.path.isfile(logfile):
                 for line in open(logfile,'r'):
-                    for exp in [ 'RES-FSI-', '[Successful Run FSI]', '[cpu FSI]', '[Time steps FSI]', '[Mean n. of FSI Iterations]']:
+                    for exp in [ 'RES-FSI-', '[Successful Run FSI]', '[cpu FSI total]', '[Time steps FSI]', '[Mean n. of FSI Iterations]']:
                         if line.find(exp)!=-1:
                             fres.write("%s" % (line))        
         except: # ctrl-c
@@ -70,8 +72,10 @@ def runOne(donfile, nbProcs):
             raise
 
         fres.close()
-
-        if not verifOne(donfile): # check for results
+        
+        tsc = verifOne(donfile) 
+        
+        if not tsc or not checkOneRun(tsc): # check for results
             print '\tFAILURE!'
             os.utime(donfile, None) # touch donfile
 
@@ -88,10 +92,16 @@ def verifOne(donfile):
     resfile=donfile.replace('.py','.res')
     if os.path.isfile(resfile):
         for line in open(resfile,'r'):
-            for exp in [ 'RES-FSI-', '[Successful Run FSI]', '[cpu FSI]', '[Time steps FSI]', '[Mean n. of FSI Iterations]']:
+            for exp in [ 'RES-FSI-', '[Successful Run FSI]', '[cpu FSI total]', '[Time steps FSI]', '[Mean n. of FSI Iterations]']:
                 if line.find(exp)!=-1:
                     tsc.append(line)
     return tsc
+
+def checkOneRun(tsc):
+    runOk = False
+    if any('[Successful Run FSI]: True' in s for s in tsc):
+        runOk = True
+    return runOk
 
 def loopOnOne(file):
     if os.path.isdir(file):
