@@ -1,11 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: latin-1; -*-
-#
-# interpolator.py
-# Interface interpolator and communicator.
-# Authors : David THOMAS, Marco Lucio CERQUAGLIA, Romain BOMAN
-#
-# COPYRIGHT (C) University of Liège, 2017.
+
+''' 
+
+Copyright 2018 University of Liège
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. 
+
+interpolator.py
+Interface interpolator and communicator.
+Authors : David THOMAS, Marco Lucio CERQUAGLIA, Romain BOMAN
+
+'''
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -63,7 +79,7 @@ class InterfaceInterpolator(ccupydo.CInterpolator):
 
         self.d = 0
 
-        if self.manager.withCht:
+        if self.manager.thermal:
             self.chtTransferMethod = chtTransferMethod
             if self.chtTransferMethod not in ['TFFB','FFTB','hFTB','hFFB']:
                 mpiPrint('CHT transfer method not specified or not recognized, using default TFFB',mpiComm)
@@ -560,13 +576,13 @@ class MatchingMeshesInterpolator(InterfaceInterpolator):
         Des.
         """
 
-        if self.manager.withFsi:
+        if self.manager.mechanical:
             self.solidInterfaceDisplacement = FlexInterfaceData(self.ns, 3, self.mpiComm)
             self.fluidInterfaceDisplacement = FlexInterfaceData(self.nf, 3, self.mpiComm)
             self.solidInterfaceLoads = FlexInterfaceData(self.ns, 3, self.mpiComm)
             self.fluidInterfaceLoads = FlexInterfaceData(self.nf, 3, self.mpiComm)
 
-        if self.manager.withCht :
+        if self.manager.thermal :
             if self.chtTransferMethod == 'TFFB':
                 self.solidInterfaceTemperature = FlexInterfaceData(self.ns, 1, self.mpiComm)
                 self.fluidInterfaceTemperature = FlexInterfaceData(self.nf, 1, self.mpiComm)
@@ -653,7 +669,7 @@ class MatchingMeshesInterpolator(InterfaceInterpolator):
 
         localFluidInterface_array_X_init, localFluidInterface_array_Y_init, localFluidInterface_array_Z_init = self.FluidSolver.getNodalInitialPositions()
 
-        print('Mathing mapping search on rank {}...'.format(self.myid))
+        print('Matching mapping search on rank {}...'.format(self.myid))
         start = tm.time()
         ccupydo.CInterpolator.matching_search(self, localFluidInterface_array_X_init, localFluidInterface_array_Y_init, localFluidInterface_array_Z_init,
                                               solidInterfaceBuffRcv_X, solidInterfaceBuffRcv_Y, solidInterfaceBuffRcv_Z, iProc)
@@ -728,13 +744,13 @@ class ConservativeInterpolator(InterfaceInterpolator):
         Description.
         """
 
-        if self.manager.withFsi:
+        if self.manager.mechanical:
             self.solidInterfaceDisplacement = FlexInterfaceData(self.ns + self.d, 3, self.mpiComm)
             self.fluidInterfaceDisplacement = FlexInterfaceData(self.nf, 3, self.mpiComm)
             self.solidInterfaceLoads = FlexInterfaceData(self.ns + self.d, 3, self.mpiComm)
             self.fluidInterfaceLoads = FlexInterfaceData(self.nf, 3, self.mpiComm)
 
-        if self.manager.withCht :
+        if self.manager.thermal :
             if self.chtTransferMethod == 'TFFB':
                 self.solidInterfaceTemperature = FlexInterfaceData(self.ns + self.d, 1, self.mpiComm)
                 self.fluidInterfaceTemperature = FlexInterfaceData(self.nf, 1, self.mpiComm)
@@ -903,13 +919,13 @@ class ConsistentInterpolator(InterfaceInterpolator):
         Description.
         """
 
-        if self.manager.withFsi:
+        if self.manager.mechanical:
             self.solidInterfaceDisplacement = FlexInterfaceData(self.ns + self.d, 3, self.mpiComm)
             self.fluidInterfaceDisplacement = FlexInterfaceData(self.nf, 3, self.mpiComm)
             self.solidInterfaceLoads = FlexInterfaceData(self.ns, 3, self.mpiComm)
             self.fluidInterfaceLoads = FlexInterfaceData(self.nf + self.d, 3, self.mpiComm)
 
-        if self.manager.withCht :
+        if self.manager.thermal :
             if self.chtTransferMethod == 'TFFB':
                 self.solidInterfaceTemperature = FlexInterfaceData(self.ns, 1, self.mpiComm)
                 self.fluidInterfaceTemperature = FlexInterfaceData(self.nf + self.d, 1, self.mpiComm)

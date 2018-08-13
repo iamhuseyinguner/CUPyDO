@@ -1,11 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: latin-1; -*-
 
-# SU2Interface.py
-# Python interface between the wrapper of SU2 and CUPyDO.
-# Authors D. THOMAS
-#
-# COPYRIGHT (C) University of Liège, 2017.
+''' 
+
+Copyright 2018 University of Liège
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. 
+
+SU2Interface.py
+Python interface between the wrapper of SU2 and CUPyDO.
+Authors D. THOMAS
+
+'''
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,7 +61,8 @@ class SU2Solver(FluidSolver):
         allMarkersID = self.SU2.GetAllBoundaryMarkers()                             # dic : allMarkersID['marker_tag'] = marker_ID
         self.fluidInterfaceID = None                                                # identification of the f/s boundary, currently limited to one boundary, by default the first tag in allMovingMarkersTags
         if not allMovingMarkersTags and not allCHTMarkersTags:
-            raise Exception('No interface for FSI was defined.')
+            #raise Exception('No interface for FSI was defined.')
+            self.fluidInterfaceID = None
         elif allMovingMarkersTags and not allCHTMarkersTags:
             if allMovingMarkersTags[0] in allMarkersID.keys():
                 self.fluidInterfaceID = allMarkersID[allMovingMarkersTags[0]]

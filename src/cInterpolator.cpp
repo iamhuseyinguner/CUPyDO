@@ -1,8 +1,22 @@
+/*
+ * Copyright 2018 University of Liège
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /*!
  * Source for CInterpolator.
  * Authors : D. THOMAS.
- *
- * COPYRIGHT (C) University of Liège, 2017.
  */
 
 #include <iostream>
@@ -128,17 +142,28 @@ void CInterpolator::TPS_fillMatrixA(int size_loc_x, double* array_loc_x, int siz
       phi = PHI_TPS(dist);
       phi_value[jVertex] = phi;
     }
+    //Set PHI block
     A->setValues(1, &(iGlobalVertexSolid_list.front()), static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), &(phi_value.front()));    //set the entire row
     A_T->setValues(static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), 1, &(iGlobalVertexSolid_list.front()), &(phi_value.front()));  //set the entire column of the transposed matrix
+    //Set P block
     A->setValue(iGlobalVertexSolid, ns, 1.0);
     A->setValue(iGlobalVertexSolid, ns+1, solidPoint[0]);
     A->setValue(iGlobalVertexSolid, ns+2, solidPoint[1]);
     A_T->setValue(ns, iGlobalVertexSolid, 1.0);
     A_T->setValue(ns+1, iGlobalVertexSolid, solidPoint[0]);
     A_T->setValue(ns+2, iGlobalVertexSolid, solidPoint[1]);
+    //Set P^T block
+    A->setValue(ns, iGlobalVertexSolid, 1.0);
+    A->setValue(ns+1, iGlobalVertexSolid, solidPoint[0]);
+    A->setValue(ns+2, iGlobalVertexSolid, solidPoint[1]);
+    A_T->setValue(iGlobalVertexSolid, ns, 1.0);
+    A_T->setValue(iGlobalVertexSolid, ns+1, solidPoint[0]);
+    A_T->setValue(iGlobalVertexSolid, ns+2, solidPoint[1]);
     if(nDim == 3){
       A->setValue(iGlobalVertexSolid, ns+3, solidPoint[2]);
+      A->setValue(ns+3,iGlobalVertexSolid, solidPoint[2]);
       A_T->setValue(ns+3, iGlobalVertexSolid, solidPoint[2]);
+      A_T->setValue(iGlobalVertexSolid, ns+3, solidPoint[2]);
     }
   }
 
@@ -181,8 +206,10 @@ void CInterpolator::TPS_fillMatrixB(int size_loc_x, double* array_loc_x, int siz
       phi = PHI_TPS(dist);
       phi_value[jVertex] = phi;
     }
+    //Set PHI block
     B->setValues(1, &(iGlobalVertexFluid_list.front()), static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), &(phi_value.front()));    //set the entire row
     B_T->setValues(static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), 1, &(iGlobalVertexFluid_list.front()), &(phi_value.front()));  //set the entire column of the transposed matrix
+    //Set P block
     B->setValue(iGlobalVertexFluid, ns, 1.0);
     B->setValue(iGlobalVertexFluid, ns+1, fluidPoint[0]);
     B->setValue(iGlobalVertexFluid, ns+2, fluidPoint[1]);
@@ -234,12 +261,19 @@ void CInterpolator::consistent_TPS_fillMatrixA(int size_loc_x, double* array_loc
       phi = PHI_TPS(dist);
       phi_value[jVertex] = phi;
     }
+    //Set PHI block
     A->setValues(1, &(iGlobalVertexSolid_list.front()), static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), &(phi_value.front()));    //set the entire row
+    //Set P block
     A->setValue(iGlobalVertexSolid, ns, 1.0);
     A->setValue(iGlobalVertexSolid, ns+1, solidPoint[0]);
     A->setValue(iGlobalVertexSolid, ns+2, solidPoint[1]);
+    //Set P^T block
+    A->setValue(ns, iGlobalVertexSolid, 1.0);
+    A->setValue(ns+1, iGlobalVertexSolid, solidPoint[0]);
+    A->setValue(ns+2, iGlobalVertexSolid, solidPoint[1]);
     if(nDim == 3){
       A->setValue(iGlobalVertexSolid, ns+3, solidPoint[2]);
+      A->setValue(ns+3, iGlobalVertexSolid, solidPoint[2]);
     }
   }
 
@@ -338,12 +372,19 @@ void CInterpolator::consistent_TPS_fillMatrixC(int size_loc_x, double* array_loc
       phi = PHI_TPS(dist);
       phi_value[jVertex] = phi;
     }
+    //Set block PHI
     C->setValues(1, &(iGlobalVertexFluid_list.front()), static_cast<int>(jGlobalVertexFluid_list.size()), &(jGlobalVertexFluid_list.front()), &(phi_value.front()));
+    //Set block P
     C->setValue(iGlobalVertexFluid, nf, 1.0);
     C->setValue(iGlobalVertexFluid, nf+1, fluidPoint[0]);
     C->setValue(iGlobalVertexFluid, nf+2, fluidPoint[1]);
+    //Set block P^T
+    C->setValue(nf, iGlobalVertexFluid, 1.0);
+    C->setValue(nf+1, iGlobalVertexFluid, fluidPoint[0]);
+    C->setValue(nf+2, iGlobalVertexFluid, fluidPoint[1]);
     if(nDim == 3){
       C->setValue(iGlobalVertexFluid, nf+3, fluidPoint[2]);
+      C->setValue(nf+3, iGlobalVertexFluid, fluidPoint[2]);
     }
   }
 
@@ -390,17 +431,29 @@ void CInterpolator::RBF_fillMatrixA(int size_loc_x, double* array_loc_x, int siz
       phi = PHI_RBF(dist, radius);
       phi_value.push_back(phi);
     }
+    //Set block PHI
     A->setValues(1, &(iGlobalVertexSolid_list.front()), static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), &(phi_value.front()));
     A_T->setValues(static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), 1, &(iGlobalVertexSolid_list.front()), &(phi_value.front()));
+    //set block P
     A->setValue(iGlobalVertexSolid, ns, 1.0);
     A->setValue(iGlobalVertexSolid, ns+1, solidPoint[0]);
     A->setValue(iGlobalVertexSolid, ns+2, solidPoint[1]);
     A_T->setValue(ns, iGlobalVertexSolid, 1.0);
     A_T->setValue(ns+1, iGlobalVertexSolid, solidPoint[0]);
     A_T->setValue(ns+2, iGlobalVertexSolid, solidPoint[1]);
+    //Set block P^T
+    A->setValue(ns, iGlobalVertexSolid, 1.0);
+    A->setValue(ns+1, iGlobalVertexSolid, solidPoint[0]);
+    A->setValue(ns+2, iGlobalVertexSolid, solidPoint[1]);
+    A_T->setValue(iGlobalVertexSolid, ns, 1.0);
+    A_T->setValue(iGlobalVertexSolid, ns+1, solidPoint[0]);
+    A_T->setValue(iGlobalVertexSolid, ns+2, solidPoint[1]);
     if(nDim == 3){
       A->setValue(iGlobalVertexSolid, ns+3, solidPoint[2]);
+      A->setValue(ns+3, iGlobalVertexSolid, solidPoint[2]);
       A_T->setValue(ns+3, iGlobalVertexSolid, solidPoint[2]);
+      A_T->setValue(iGlobalVertexSolid, ns+3, solidPoint[2]);
+
     }
   }
 
@@ -503,12 +556,19 @@ void CInterpolator::consistent_RBF_fillMatrixA(int size_loc_x, double* array_loc
       phi = PHI_RBF(dist, radius);
       phi_value.push_back(phi);
     }
+    //Set block PHI
     A->setValues(1, &(iGlobalVertexSolid_list.front()), static_cast<int>(jGlobalVertexSolid_list.size()), &(jGlobalVertexSolid_list.front()), &(phi_value.front()));
+    //Set block P
     A->setValue(iGlobalVertexSolid, ns, 1.0);
     A->setValue(iGlobalVertexSolid, ns+1, solidPoint[0]);
     A->setValue(iGlobalVertexSolid, ns+2, solidPoint[1]);
+    //Set block P^T
+    A->setValue(ns, iGlobalVertexSolid, 1.0);
+    A->setValue(ns+1, iGlobalVertexSolid, solidPoint[0]);
+    A->setValue(ns+2, iGlobalVertexSolid, solidPoint[1]);
     if(nDim == 3){
       A->setValue(iGlobalVertexSolid, ns+3, solidPoint[2]);
+      A->setValue(ns+3, iGlobalVertexSolid, solidPoint[2]);
     }
   }
 }
@@ -645,12 +705,19 @@ void CInterpolator::consistent_RBF_fillMatrixC(int size_loc_x, double* array_loc
       phi = PHI_RBF(dist, radius);
       phi_value.push_back(phi);
     }
+    //Set block PHI
     C->setValues(1, &(iGlobalVertexFluid_list.front()), static_cast<int>(jGlobalVertexFluid_list.size()), &(jGlobalVertexFluid_list.front()), &(phi_value.front()));
+    //Set block P
     C->setValue(iGlobalVertexFluid, nf, 1.0);
     C->setValue(iGlobalVertexFluid, nf+1, fluidPoint[0]);
     C->setValue(iGlobalVertexFluid, nf+2, fluidPoint[1]);
+    //Set block P^T
+    C->setValue(nf, iGlobalVertexFluid, 1.0);
+    C->setValue(nf+1, iGlobalVertexFluid, fluidPoint[0]);
+    C->setValue(nf+2, iGlobalVertexFluid, fluidPoint[1]);
     if(nDim == 3){
       C->setValue(iGlobalVertexFluid, nf+3, fluidPoint[2]);
+      C->setValue(nf+3, iGlobalVertexFluid, fluidPoint[2]);
     }
   }
 

@@ -1,11 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: latin-1; -*-
-#
-# criterion.py
-# Defines coupling criteria for CUPyDO.
-# Authors : David THOMAS, Marco Lucio CERQUAGLIA, Romain BOMAN
-#
-# COPYRIGHT (C) University of Liège, 2017.
+
+''' 
+
+Copyright 2018 University of Liège
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. 
+
+criterion.py
+Defines coupling criteria for CUPyDO.
+Authors : David THOMAS, Marco Lucio CERQUAGLIA, Romain BOMAN
+
+'''
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -22,7 +38,7 @@ class Criterion:
     Description
     """
 
-    def __init__(self, tolerance, heatFluxTolerance = 1e12):
+    def __init__(self, tolerance, thermalTolerance = 1e12):
         """
         Description.
         """
@@ -30,10 +46,10 @@ class Criterion:
         self.tol = tolerance
         self.epsilon = 0
 
-        self.tolHeatFlux = heatFluxTolerance
-        self.epsilonHeatFlux = 0
+        self.tolthermal = thermalTolerance
+        self.epsilonThermal = 0
 
-    def isVerified(self, epsilon, epsilonHeatFlux=0):
+    def isVerified(self, epsilon, epsilonThermal=0):
         """
         Description.
         """
@@ -43,7 +59,7 @@ class Criterion:
         if epsilon < self.tol:
             verifList[0] = True
 
-        if epsilonHeatFlux < self.tolHeatFlux:
+        if epsilonThermal < self.tolthermal:
             verifList[1] = True
 
         if False in verifList:
@@ -56,12 +72,12 @@ class DispNormCriterion(Criterion):
     Description.
     """
 
-    def __init__(self, tolerance, heatFluxTolerance = 1e12):
+    def __init__(self, tolerance, thermalTolerance = 1e12):
         """
         Description.
         """
 
-        Criterion.__init__(self, tolerance, heatFluxTolerance)
+        Criterion.__init__(self, tolerance, thermalTolerance)
 
     def update(self, res):
         """
@@ -76,14 +92,14 @@ class DispNormCriterion(Criterion):
 
         return self.epsilon
 
-    def updateHeatFlux(self, resHeatFlux):
+    def updateThermal(self, resThermal):
         """
         Des.
         """
 
-        if resHeatFlux != None:
+        if resThermal != None:
             #normX, normY, normZ = resHeatFlux.norm()
-            normList = resHeatFlux.norm()
+            normList = resThermal.norm()
             normSquare = 0.0
             for ii in range(len(normList)):
                 normSquare += normList[ii]**2
@@ -93,6 +109,6 @@ class DispNormCriterion(Criterion):
         else:
             norm = 1.0
 
-        self.epsilonHeatFlux = norm
+        self.epsilonThermal = norm
 
-        return self.epsilonHeatFlux
+        return self.epsilonThermal
